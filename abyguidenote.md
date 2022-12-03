@@ -1,6 +1,4 @@
-{%hackmd BJrTq20hE %}
 # ABY Dev Guide筆記
-
 ## Overview
 + computing parties將所有不想公開的值，結合ABY做計算(p.4)
 + sharings
@@ -137,9 +135,3 @@ Parameters<sub>(p.17)</sub>：
 
 <!-- 類似建志的log -->
 
-----------------------------------------------------------
-
-https://www.spreered.com/compiler_for_dummies/
-
-https://www.spreered.com/compiler_for_dummies/
-------------------------------------------------------------

@@ -1,7 +1,4 @@
-{%hackmd BJrTq20hE %}
 # About MPC
-
-
 ---
 * ABY party 計算的一坨東西
   要用兩個
@@ -25,11 +22,8 @@
 ---
 * data type?
 * wrapper?
-
-
 * 把電路合成變成c語言
 ---
-
 ## Question1
 ---
 * 汇编语言SHR（右移）指令：将操作数逻辑右移一位
