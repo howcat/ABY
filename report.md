@@ -32,3 +32,8 @@
     - 但是需要真正運算(sqrt)可能的作法
         - 只能用逼近的值
         - 會有誤差
+### 遇到困難嘗試解決的方式
+- 程式碼 SEGMENTATION FAULT 
+    - CAMKE要使用GDB需要安裝另外的套件
+#### REFERENCE
+- https://bytefreaks.net/programming-2/cc-how-do-you-set-gdb-debug-flag-g-with-cmake
