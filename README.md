@@ -33,8 +33,11 @@
   resulting in improved program performance as follows.
     - website
     - https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html
--  ![Alt text](image.png)
--  ![Alt text](image-1.png)
+---
+
+![Alt text](image.png)
+![Alt text](image-1.png)
+
 ---
 ## Expected Future Progress
 1. Completeness of the verification method
