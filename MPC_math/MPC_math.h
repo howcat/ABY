@@ -12,7 +12,7 @@
 #include "../../abycore/circuit/share.h"
 #include "../../abycore/sharing/sharing.h"
 
-class ABYHelper {
+class ABYmath {
 
 public:
 
@@ -42,12 +42,39 @@ public:
         
     int64_t aby_tan(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
         uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
-        
-    int64_t aby_cabs(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double a_in, double b_in);
+
+    int64_t aby_asin(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+
+    int64_t aby_acos(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+
+    int64_t aby_atan(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+
+    int64_t aby_atan2(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+
+    int64_t aby_sinh(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+		uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float x);
+
+    int64_t aby_cosh(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+		uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float x);
+
+    int64_t aby_tanh(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+		uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float x);
         
     int64_t aby_ldexp(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
         uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double a_in, double b_in);
+        
+    int64_t aby_cabs(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double a_in, double b_in);
+    
+    int64_t aby_fmod(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+		uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double a, double b);
+    
+    int64_t aby_modf(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+		uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double a, double *intptr);
 
 private:
     

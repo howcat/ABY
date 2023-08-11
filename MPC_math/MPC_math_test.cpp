@@ -77,19 +77,23 @@ int main(int argc, char** argv) {
 	seclvl seclvl = get_sec_lvl(secparam);
 
 
-    a = 0.65, b = 3;
-    ABYHelper abyhelper;
-    // abyhelper.aby_pow(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
-    // abyhelper.aby_ceil(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abyhelper.aby_floor(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abyhelper.aby_abs(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abyhelper.aby_exp(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, (float)a);
-    // abyhelper.aby_sqrt(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abyhelper.aby_sin(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abyhelper.aby_cos(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abyhelper.aby_tan(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abyhelper.aby_cabs(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
-    abyhelper.aby_ldexp(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
+    a = 0.12, b = 3.1666;
+    ABYmath abymath;
+    // abymath.aby_pow(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
+    // abymath.aby_ceil(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
+    // abymath.aby_floor(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
+    // abymath.aby_abs(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
+    // abymath.aby_exp(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
+    // abymath.aby_sqrt(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
+    // abymath.aby_sin(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
+    // abymath.aby_cos(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
+    // abymath.aby_tan(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
+    abymath.aby_acos(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
+    // abymath.aby_cosh(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
+    // abymath.aby_cabs(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
+    // abymath.aby_ldexp(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
+    // abymath.aby_fmod(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
+    // abymath.aby_modf(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, &b);
 
 	return 0;
 }
