@@ -76,24 +76,31 @@ int main(int argc, char** argv) {
     
 	seclvl seclvl = get_sec_lvl(secparam);
 
-
-    a = 0.12, b = 3.1666;
+    a = 0.56681, b = 3.1666;
     ABYmath abymath;
-    // abymath.aby_pow(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
-    // abymath.aby_ceil(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abymath.aby_floor(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abymath.aby_abs(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abymath.aby_exp(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abymath.aby_sqrt(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abymath.aby_sin(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abymath.aby_cos(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abymath.aby_tan(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    abymath.aby_acos(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abymath.aby_cosh(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a);
-    // abymath.aby_cabs(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
-    // abymath.aby_ldexp(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
-    // abymath.aby_fmod(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, b);
-    // abymath.aby_modf(role, address, port, seclvl, nvals, nthreads, mt_alg, S_BOOL, a, &b);
+
+    pack p = abymath.read_parameter(role, address, port, seclvl, bitlen, nvals, nthreads, mt_alg, S_BOOL);
+
+    // double test = abymath.aby_pow(p, a, b, 6);
+    abymath.aby_ceil(p, a);
+    // abymath.aby_floor(p, a);
+    // abymath.aby_abs(p, a);
+    // abymath.aby_exp(p, a);
+    // abymath.aby_sqrt(p, a);
+    // abymath.aby_sin(p, a);
+    // abymath.aby_cos(p, a);
+    // abymath.aby_tan(p, a);
+    // abymath.aby_asin(p, a);
+    // abymath.aby_acos(p, a);
+    // abymath.aby_atan(p, a);
+    // abymath.aby_atan2(p, a);
+    // abymath.aby_sinh(p, a);
+    // abymath.aby_cosh(p, a);
+    // abymath.aby_tanh(p, a);
+    // abymath.aby_cabs(p, a, b);
+    // abymath.aby_ldexp(p, a, b);
+    // abymath.aby_fmod(p, a, b);
+    // abymath.aby_modf(p, a, &b);
 
 	return 0;
 }

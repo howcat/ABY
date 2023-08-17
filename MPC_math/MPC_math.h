@@ -1,5 +1,6 @@
 #ifndef __MPCMATH_H_
 #define __MPCMATH_H_
+#define DEBUG_MPCMATH
 
 #include <ENCRYPTO_utils/crypto/crypto.h>
 #include <ENCRYPTO_utils/parse_options.h>
@@ -12,73 +13,67 @@
 #include "../../abycore/circuit/share.h"
 #include "../../abycore/sharing/sharing.h"
 
+struct parameter_package{
+    e_role role;
+    std::string address;
+    uint16_t port;
+    seclvl seclevel;
+    uint64_t bitlen;
+    uint64_t nvals;
+    uint64_t nthreads;
+    e_mt_gen_alg mt_alg;
+    e_sharing sharing;
+};
+
+typedef struct parameter_package pack;
+
 class ABYmath {
-
 public:
+    pack read_parameter(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
+        uint64_t bitlen, uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing);
 
-    int64_t aby_pow(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double base, double exp);
+    double aby_pow(pack p, double base, double exp, int precision);
 
-    int64_t aby_ceil(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double input);
+    int64_t aby_ceil(pack p, double input);
 
-    int64_t aby_floor(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double input);
+    int64_t aby_floor(pack p, double input);
 
-    int64_t aby_abs(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double input);
+    int64_t aby_abs(pack p, double input);
 
-    int64_t aby_exp(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+    int64_t aby_exp(pack p, float input);
 
-    int64_t aby_sqrt(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double input);
+    int64_t aby_sqrt(pack p, double input);
 
-    int64_t aby_sin(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+    int64_t aby_sin(pack p, float input);
 
-    int64_t aby_cos(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+    int64_t aby_cos(pack p, float input);
         
-    int64_t aby_tan(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+    int64_t aby_tan(pack p, float input);
 
-    int64_t aby_asin(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+    int64_t aby_asin(pack p, float input);
 
-    int64_t aby_acos(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+    int64_t aby_acos(pack p, float input);
 
-    int64_t aby_atan(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+    int64_t aby_atan(pack p, float input);
 
-    int64_t aby_atan2(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float input);
+    int64_t aby_atan2(pack p, float y, float x);
 
-    int64_t aby_sinh(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-		uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float x);
+    int64_t aby_sinh(pack p, float input);
 
-    int64_t aby_cosh(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-		uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float x);
+    int64_t aby_cosh(pack p, float input);
 
-    int64_t aby_tanh(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-		uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, float x);
+    int64_t aby_tanh(pack p, float input);
         
-    int64_t aby_ldexp(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double a_in, double b_in);
+    int64_t aby_ldexp(pack p, double x, double exponent);
         
-    int64_t aby_cabs(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double a_in, double b_in);
+    int64_t aby_cabs(pack p, double complex_real, double complex_imag);
     
-    int64_t aby_fmod(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-		uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double a, double b);
+    int64_t aby_fmod(pack p, double x, double y);
     
-    int64_t aby_modf(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-		uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing, double a, double *intptr);
+    int64_t aby_modf(pack p, double input, double *intptr);
 
 private:
     
-
 };
 
 #endif // __MPCMATH_H_
