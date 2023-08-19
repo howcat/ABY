@@ -4,8 +4,10 @@
 
 #include <ENCRYPTO_utils/crypto/crypto.h>
 #include <ENCRYPTO_utils/parse_options.h>
-#include <math.h>
+#include <cmath>
 #include <cassert>
+#include <iomanip>
+#include <limits>
 #include "../../abycore/aby/abyparty.h"
 #include "../../abycore/circuit/arithmeticcircuits.h"
 #include "../../abycore/circuit/booleancircuits.h"
@@ -34,43 +36,43 @@ public:
 
     double aby_pow(pack p, double base, double exp, int precision);
 
-    int64_t aby_ceil(pack p, double input);
+    double aby_ceil(pack p, double input);
 
-    int64_t aby_floor(pack p, double input);
+    double aby_floor(pack p, double input);
+    /* finished line */
+    double aby_abs(pack p, double input);
 
-    int64_t aby_abs(pack p, double input);
+    double aby_exp(pack p, float input);
 
-    int64_t aby_exp(pack p, float input);
+    double aby_sqrt(pack p, double input);
 
-    int64_t aby_sqrt(pack p, double input);
+    double aby_sin(pack p, float input);
 
-    int64_t aby_sin(pack p, float input);
-
-    int64_t aby_cos(pack p, float input);
+    double aby_cos(pack p, float input);
         
-    int64_t aby_tan(pack p, float input);
+    double aby_tan(pack p, float input);
 
-    int64_t aby_asin(pack p, float input);
+    float aby_asin(pack p, float input);
 
-    int64_t aby_acos(pack p, float input);
+    float aby_acos(pack p, float input);
 
-    int64_t aby_atan(pack p, float input);
+    float aby_atan(pack p, float input);
 
-    int64_t aby_atan2(pack p, float y, float x);
+    double aby_atan2(pack p, float y, float x);
 
-    int64_t aby_sinh(pack p, float input);
+    float aby_sinh(pack p, float input);
 
-    int64_t aby_cosh(pack p, float input);
+    double aby_cosh(pack p, float input);
 
-    int64_t aby_tanh(pack p, float input);
+    double aby_tanh(pack p, float input);
         
-    int64_t aby_ldexp(pack p, double x, double exponent);
+    double aby_ldexp(pack p, double x, double exponent);
         
-    int64_t aby_cabs(pack p, double complex_real, double complex_imag);
+    double aby_cabs(pack p, double complex_real, double complex_imag);
     
-    int64_t aby_fmod(pack p, double x, double y);
+    double aby_fmod(pack p, double x, double y);
     
-    int64_t aby_modf(pack p, double input, double *intptr);
+    double aby_modf(pack p, double input, double *intptr);
 
 private:
     

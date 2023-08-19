@@ -59,40 +59,33 @@ int main(int argc, char** argv) {
     
 	seclvl seclvl = get_sec_lvl(secparam);
 
-    // a = -2.56681, b = 3.1666;
-    // std::cout << "Testing Data\n"
-    //           << "============\n"
-    //           << "a: " << a << "\n"
-    //           << "b: " << b << "\n";
+    std::ofstream outputFile_1("./verification_fiile/file_1.txt");
+    std::ofstream outputFile_2("./verification_fiile/file_2.txt");
+    if (!outputFile_1.is_open() || !outputFile_2.is_open()) {
+        std::cerr << "無法開啟檔案。" << std::endl;
+        return 1;
+    }
 
-    ABYmath abymath;
+    double lower_bound = -100;
+    double upper_bound = 100;
+    std::default_random_engine re;
+    std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
 
-    pack p = abymath.read_parameter(role, address, port, seclvl, bitlen, nvals, nthreads, mt_alg, S_BOOL);
+    for (int i = 0; i < 20; i++) {
+        std::cout << "(" << i+1 << "/20)\n";
+        double a_random_double = unif(re);
+        // double a_random_double = -343.532;
+        // file 1
+        outputFile_1 << a_random_double << " " << sinh(a_random_double) << std::endl;
+        // file
+        ABYmath abymath;
+        pack p = abymath.read_parameter(role, address, port, seclvl, bitlen, nvals, nthreads, mt_alg, S_BOOL);
+        float test = abymath.aby_sinh(p, a_random_double);
+        outputFile_2 << a_random_double << " " << test << std::endl;
+    }
 
-    double test; 
-    // abymath.aby_pow(p, a, b, 6);
-    // abymath.aby_ceil(p, a);
-    // abymath.aby_floor(p, a);
-    // abymath.aby_abs(p, a);
-    // abymath.aby_exp(p, a);
-    // abymath.aby_sqrt(p, a);
-    // abymath.aby_sin(p, a);
-    // abymath.aby_cos(p, a);
-    // abymath.aby_tan(p, a);
-    // abymath.aby_asin(p, a);
-    // abymath.aby_acos(p, a);
-    test = abymath.aby_atan(p, -343.532);
-    std::cout << test << std::endl;
-    // abymath.aby_atan2(p, a);
-    // abymath.aby_sinh(p, a);
-    // abymath.aby_cosh(p, a);
-    // abymath.aby_tanh(p, a);
-    // abymath.aby_cabs(p, a, b);
-    // abymath.aby_ldexp(p, a, b);
-    // abymath.aby_fmod(p, a, b);
-    // abymath.aby_modf(p, a, &b);
-
-    // std::cout << "test return: " << test << "\n";
+    outputFile_1.close();
+    outputFile_2.close();
 
 	return 0;
 }
