@@ -8,6 +8,7 @@
 #include <cassert>
 #include <iomanip>
 #include <limits>
+#include <cfloat>
 #include "../../abycore/aby/abyparty.h"
 #include "../../abycore/circuit/arithmeticcircuits.h"
 #include "../../abycore/circuit/booleancircuits.h"
@@ -15,64 +16,53 @@
 #include "../../abycore/circuit/share.h"
 #include "../../abycore/sharing/sharing.h"
 
-struct parameter_package{
-    e_role role;
-    std::string address;
-    uint16_t port;
-    seclvl seclevel;
-    uint64_t bitlen;
-    uint64_t nvals;
-    uint64_t nthreads;
-    e_mt_gen_alg mt_alg;
-    e_sharing sharing;
-};
-
-typedef struct parameter_package pack;
-
 class ABYmath {
 public:
-    pack read_parameter(e_role role, const std::string& address, uint16_t port, seclvl seclvl,
-        uint64_t bitlen, uint64_t nvals, uint64_t nthreads, e_mt_gen_alg mt_alg, e_sharing sharing);
+    // std::vector<uint64_t> aby_save(ABYParty* party, BooleanCircuit* circ, std::vector<share*> s_save);
 
-    double aby_pow(pack p, double base, double exp, int precision);
+    // void aby_take(ABYParty* party, BooleanCircuit* circ, std::vector<share*> s_save, std::vector<uint64_t> save);
 
-    double aby_ceil(pack p, double input);
+    share* aby_test(ABYParty* party, BooleanCircuit* circ, share* a, share* b);
 
-    double aby_floor(pack p, double input);
-    /* finished line */
-    double aby_abs(pack p, double input);
+    share* aby_pow(ABYParty* party, BooleanCircuit* circ, share* base, share* exp);
 
-    double aby_exp(pack p, float input);
+    share* aby_ceil(ABYParty* party, BooleanCircuit* circ, share* input);
 
-    double aby_sqrt(pack p, double input);
-
-    double aby_sin(pack p, float input);
-
-    double aby_cos(pack p, float input);
-        
-    double aby_tan(pack p, float input);
-
-    float aby_asin(pack p, float input);
-
-    float aby_acos(pack p, float input);
-
-    float aby_atan(pack p, float input);
-
-    double aby_atan2(pack p, float y, float x);
-
-    float aby_sinh(pack p, float input);
-
-    double aby_cosh(pack p, float input);
-
-    double aby_tanh(pack p, float input);
-        
-    double aby_ldexp(pack p, double x, double exponent);
-        
-    double aby_cabs(pack p, double complex_real, double complex_imag);
+    share* aby_floor(ABYParty* party, BooleanCircuit* circ, share* input);
     
-    double aby_fmod(pack p, double x, double y);
+    share* aby_abs(ABYParty* party, BooleanCircuit* circ, share* input);
+
+    share* aby_exp(ABYParty* party, BooleanCircuit* circ, share* input);
+
+    share* aby_sqrt(ABYParty* party, BooleanCircuit* circ, share* input);
+
+    share* aby_sin(ABYParty* party, BooleanCircuit* circ, share* input);
+
+    share* aby_cos(ABYParty* party, BooleanCircuit* circ, share* input);
+        
+    share* aby_tan(ABYParty* party, BooleanCircuit* circ, share* input);
+
+    share* aby_asin(ABYParty* party, BooleanCircuit* circ, share* input);
+
+    share* aby_acos(ABYParty* party, BooleanCircuit* circ, share* input);
+
+    share* aby_atan(ABYParty* party, BooleanCircuit* circ, share* input);
+
+    share* aby_atan2(ABYParty* party, BooleanCircuit* circ, share* y, share* x);
+
+    share* aby_sinh(ABYParty* party, BooleanCircuit* circ, share* input);
+
+    share* aby_cosh(ABYParty* party, BooleanCircuit* circ, share* input);
+
+    share* aby_tanh(ABYParty* party, BooleanCircuit* circ, share* input);
+        
+    share* aby_ldexp(ABYParty* party, BooleanCircuit* circ, share* x, share* exponent);
+        
+    share* aby_cabs(ABYParty* party, BooleanCircuit* circ, share* complex_real, share* complex_imag);
     
-    double aby_modf(pack p, double input, double *intptr);
+    share* aby_fmod(ABYParty* party, BooleanCircuit* circ, share* x, share* y);
+    
+    share* aby_modf(ABYParty* party, BooleanCircuit* circ, share* input, share* intptr);
 
 private:
     

@@ -79,9 +79,10 @@ int main(int argc, char** argv) {
         outputFile_1 << a_random_double << " " << sinh(a_random_double) << std::endl;
         // file
         ABYmath abymath;
-        pack p = abymath.read_parameter(role, address, port, seclvl, bitlen, nvals, nthreads, mt_alg, S_BOOL);
-        float test = abymath.aby_sinh(p, a_random_double);
-        outputFile_2 << a_random_double << " " << test << std::endl;
+        
+        // pack p = abymath.read_parameter(role, address, port, seclvl, bitlen, nvals, nthreads, mt_alg, S_BOOL);
+        // float test = abymath.aby_sinh(p, a_random_double);
+        // outputFile_2 << a_random_double << " " << test << std::endl;
     }
 
     outputFile_1.close();
