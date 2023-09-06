@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <random>
+#include <vector>
 //ABY Party class
 #include "MPC_math.h"
 
@@ -50,49 +51,45 @@ int main(int argc, char** argv) {
 	uint32_t bitlen = 64, nvals = 4, secparam = 128, nthreads = 1;
 	uint16_t port = 7766;
 	std::string address = "127.0.0.1";
+	std::string circuit_dir = "/home/howcat/ABY/bin/circ/";
 	int32_t test_op = -1;
-    double a = 0.0, b = 0.0;
 	e_mt_gen_alg mt_alg = MT_OT;
+    double a = 0, b = 0;
 
 	read_test_options(&argc, &argv, &role, &bitlen, &nvals, &secparam, &address,
 			&port, &test_op, &a, &b);
     
 	seclvl seclvl = get_sec_lvl(secparam);
 
-    // a = -2.56681, b = 3.1666;
-    // std::cout << "Testing Data\n"
-    //           << "============\n"
-    //           << "a: " << a << "\n"
-    //           << "b: " << b << "\n";
-
     ABYmath abymath;
 
-    pack p = abymath.read_parameter(role, address, port, seclvl, bitlen, nvals, nthreads, mt_alg, S_BOOL);
+    // testing data
+    a = 5.532, b = 1.2;
 
-    double test; 
-    // abymath.aby_pow(p, a, b, 6);
-    // abymath.aby_ceil(p, a);
-    // abymath.aby_floor(p, a);
-    // abymath.aby_abs(p, a);
-    // abymath.aby_exp(p, a);
-    // abymath.aby_sqrt(p, a);
-    // abymath.aby_sin(p, a);
-    // abymath.aby_cos(p, a);
-    // abymath.aby_tan(p, a);
-    // abymath.aby_asin(p, a);
-    // abymath.aby_acos(p, a);
-    test = abymath.aby_atan(p, -343.532);
-    std::cout << test << std::endl;
-    // abymath.aby_atan2(p, a);
-    // abymath.aby_sinh(p, a);
-    // abymath.aby_cosh(p, a);
-    // abymath.aby_tanh(p, a);
-    // abymath.aby_cabs(p, a, b);
-    // abymath.aby_ldexp(p, a, b);
-    // abymath.aby_fmod(p, a, b);
-    // abymath.aby_modf(p, a, &b);
+    ABYParty* party = new ABYParty(role, address, port, seclvl, bitlen, nthreads, mt_alg, 100000, circuit_dir);
+	std::vector<Sharing*>& sharings = party->GetSharings();
+	BooleanCircuit* circ = (BooleanCircuit*) sharings[S_BOOL]->GetCircuitBuildRoutine();  
 
-    // std::cout << "test return: " << test << "\n";
+    uint64_t* aptr = (uint64_t*)& a;
+    uint64_t* bptr = (uint64_t*)& b;
+    share* input_a = circ->PutINGate(aptr, 64, SERVER);
+    share* input_b = circ->PutINGate(bptr, 64, CLIENT);
+    
+    // ==== testing function ====
+    std::cout << "CORRECT: " << modf(a, &b) << "\n";
+    std::cout << b << "\n";
+    // share* in = abymath.aby_floor(party, circ, input_a);
+    share* in = abymath.aby_modf(party, circ, input_a, input_b);
+    // ==========================
+    
+    share* res = circ->PutOUTGate(in, ALL);
+
+    party->ExecCircuit();
+
+    uint64_t s_ans = res->get_clear_value<uint64_t>();
+    double ans = *(double*)& s_ans;
+
+    std::cout << "ANSWER: " << ans << "\n";
 
 	return 0;
 }
