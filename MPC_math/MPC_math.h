@@ -18,9 +18,6 @@
 
 class ABYmath {
 public:
-    // std::vector<uint64_t> aby_save(ABYParty* party, BooleanCircuit* circ, std::vector<share*> s_save);
-
-    // void aby_take(ABYParty* party, BooleanCircuit* circ, std::vector<share*> s_save, std::vector<uint64_t> save);
 
     share* aby_test(ABYParty* party, BooleanCircuit* circ, share* a, share* b);
 
@@ -36,7 +33,8 @@ public:
 
     share* aby_sqrt(ABYParty* party, BooleanCircuit* circ, share* input);
 
-    share* aby_sin(ABYParty* party, BooleanCircuit* circ, share* input);
+    share* aby_sin_32(ABYParty* party, BooleanCircuit* circ, share* input);
+    share* aby_sin_64(ABYParty* party, BooleanCircuit* circ, share* input);
 
     share* aby_cos(ABYParty* party, BooleanCircuit* circ, share* input);
         
@@ -62,7 +60,7 @@ public:
     
     share* aby_fmod(ABYParty* party, BooleanCircuit* circ, share* x, share* y);
     
-    share* aby_modf(ABYParty* party, BooleanCircuit* circ, share* input, share* intptr);
+    share* aby_modf(ABYParty* party, BooleanCircuit* circ, share* input, share** intptr);
 
 private:
     

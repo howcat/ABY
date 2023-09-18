@@ -50,12 +50,12 @@ int main(int argc, char** argv) {
 	uint32_t bitlen = 64, nvals = 4, secparam = 128, nthreads = 1;
 	uint16_t port = 7766;
 	std::string address = "127.0.0.1";
+	std::string circuit_dir = "/home/howcat/ABY/bin/circ/";
 	int32_t test_op = -1;
-    double a = 0.0, b = 0.0;
 	e_mt_gen_alg mt_alg = MT_OT;
+    double a = 0, b = 0;
 
-	read_test_options(&argc, &argv, &role, &bitlen, &nvals, &secparam, &address,
-			&port, &test_op, &a, &b);
+	read_test_options(&argc, &argv, &role, &bitlen, &nvals, &secparam, &address, &port, &test_op, &a, &b);
     
 	seclvl seclvl = get_sec_lvl(secparam);
 
@@ -66,23 +66,52 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    double lower_bound = -100;
-    double upper_bound = 100;
-    std::default_random_engine re;
-    std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
+    // double lower_bound = -1000000;
+    // double upper_bound = 1000000;
+    // std::default_random_engine re;
+    // std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
+    int upper_bound = 1000, lower_bound = -1000;
+    srand(time(0));
+    ABYmath abymath;
+    ABYParty* party = new ABYParty(role, address, port, seclvl, bitlen, nthreads, mt_alg, 100000, circuit_dir);
+    std::vector<Sharing*>& sharings = party->GetSharings();
+    BooleanCircuit* circ = (BooleanCircuit*) sharings[S_BOOL]->GetCircuitBuildRoutine();
+    int times = 10;
 
-    for (int i = 0; i < 20; i++) {
-        std::cout << "(" << i+1 << "/20)\n";
-        double a_random_double = unif(re);
-        // double a_random_double = -343.532;
-        // file 1
-        outputFile_1 << a_random_double << " " << sinh(a_random_double) << std::endl;
-        // file
-        ABYmath abymath;
+    for (int k = 0; k < times; k++) {
+        std::cout << "(" << k+1 << "/" << times <<")\n";
+        int i = rand() % (upper_bound - lower_bound + 1) + lower_bound;
+        int t = rand() % (upper_bound - lower_bound + 1) + lower_bound;
+        // double d = (double)i + (double)t / 2000;
+        double d = fmod((double)i + (double)t / 2000, (2*M_PIf64));
+        float d_32 = (float)d/M_PIf32;
+
+        // correct file
+        double correct = sin(d);
+        outputFile_1 << d << " " << correct << std::endl;
+
+        // answer file
+        uint64_t* aptr = (uint64_t*)& d;
+        uint32_t* bptr = (uint32_t*)& d_32;
+        share* input_a = circ->PutINGate(aptr, 64, SERVER);
+        share* input_b = circ->PutINGate(bptr, 32, CLIENT);
+        share* ans_64 = abymath.aby_sin_64(party, circ, input_a);
+        share* ans_32 = abymath.aby_sin_32(party, circ, input_b);
+        share* res_32 = circ->PutOUTGate(ans_32, ALL);
+        std::cout << res_32->get_bitlength() << "\n";
+        share* res_64 = circ->PutOUTGate(ans_64, ALL);
+        party->ExecCircuit();
+        uint32_t* s_ans_32 = (uint32_t*)res_32->get_clear_value_ptr();
+        float answer_32 = *((float*) s_ans_32);
+        uint64_t s_ans_64 = res_64->get_clear_value<uint64_t>();
+        double answer_64 = *(double*)& s_ans_64;
+        party->Reset();
+        outputFile_2 << d << " " << answer_64 << std::endl;
         
-        // pack p = abymath.read_parameter(role, address, port, seclvl, bitlen, nvals, nthreads, mt_alg, S_BOOL);
-        // float test = abymath.aby_sinh(p, a_random_double);
-        // outputFile_2 << a_random_double << " " << test << std::endl;
+        std::cout << "test data: " << d << "\n"
+                  << "correct  : " << correct << "\n"
+                  << "answer_32: " << answer_32 << "\n"
+                  << "answer_64: " << answer_64 << "\n"; 
     }
 
     outputFile_1.close();

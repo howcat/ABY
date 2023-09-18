@@ -5,7 +5,6 @@
 #include <cstdlib>
 #include <cmath>
 #include <random>
-#include <vector>
 //ABY Party class
 #include "MPC_math.h"
 
@@ -64,11 +63,12 @@ int main(int argc, char** argv) {
     ABYmath abymath;
 
     // testing data
-    a = 5.532, b = 1.2;
+    a = 10.234, b = 5.678;
 
     ABYParty* party = new ABYParty(role, address, port, seclvl, bitlen, nthreads, mt_alg, 100000, circuit_dir);
 	std::vector<Sharing*>& sharings = party->GetSharings();
-	BooleanCircuit* circ = (BooleanCircuit*) sharings[S_BOOL]->GetCircuitBuildRoutine();  
+	BooleanCircuit* circ = (BooleanCircuit*) sharings[S_BOOL]->GetCircuitBuildRoutine();
+
 
     uint64_t* aptr = (uint64_t*)& a;
     uint64_t* bptr = (uint64_t*)& b;
@@ -76,20 +76,23 @@ int main(int argc, char** argv) {
     share* input_b = circ->PutINGate(bptr, 64, CLIENT);
     
     // ==== testing function ====
-    std::cout << "CORRECT: " << modf(a, &b) << "\n";
-    std::cout << b << "\n";
-    // share* in = abymath.aby_floor(party, circ, input_a);
-    share* in = abymath.aby_modf(party, circ, input_a, input_b);
+    std::cout << "CORRECT: " << std::fixed  << std::setprecision(12) << exp(a) << "\n";
+    share* in = abymath.aby_exp(party, circ, input_a);
+    // share* in = abymath.aby_fmod(party, circ, input_a, input_b);
     // ==========================
     
     share* res = circ->PutOUTGate(in, ALL);
+    // share* intpart = circ->PutOUTGate(input_b, ALL);
 
     party->ExecCircuit();
 
     uint64_t s_ans = res->get_clear_value<uint64_t>();
     double ans = *(double*)& s_ans;
+    // uint64_t s_intpart = intpart->get_clear_value<uint64_t>();
+    // double ans_intpart = *(double*)& s_intpart;
 
-    std::cout << "ANSWER: " << ans << "\n";
+    std::cout << "ANSWER: " << std::fixed  << std::setprecision(12) << ans << "\n";
+    // std::cout << "INTPART: " << ans_intpart << "\n";
 
 	return 0;
 }
