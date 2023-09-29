@@ -8,7 +8,7 @@ share* ABYmath::aby_pow(ABYParty* party, BooleanCircuit* circ, share* s_base, sh
 	share* s_exp2 = circ->PutFPGate(s_mul, EXP2);
     s_exp2->set_bitlength(64);
 
-    double zero = 0, nan_d = std::nan("1");;
+    double zero = 0, nan_d = std::nan("1");
     uint64_t* zerofptr = (uint64_t*) &zero;
     uint64_t* nanfptr = (uint64_t*) &nan_d;
     share* s_zero = circ->PutCONSGate(*zerofptr, 64);
@@ -102,6 +102,12 @@ share* ABYmath::aby_exp(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     double e = M_Ef64;
     uint64_t* efptr = (uint64_t*)& e;
     share* s_e = circ->PutCONSGate(*efptr, 64);
+
+    // std::cout << s_e->get_wire_id(0) << "\n";
+    // std::cout << s_e->get_wire_id(1) << "\n";
+    // std::cout << s_e->get_wire_id(2) << "\n";
+    // std::cout << s_e->get_wire_id(3) << "\n";
+    
     share* s_log2 = circ->PutFPGate(s_e, LOG2);
     s_log2->set_bitlength(64);
     share* s_mul = circ->PutFPGate(s_in, s_log2, MUL);
@@ -112,7 +118,16 @@ share* ABYmath::aby_exp(ABYParty* party, BooleanCircuit* circ, share* s_in) {
 }
 
 share* ABYmath::aby_sqrt(ABYParty* party, BooleanCircuit* circ, share* s_in) {
+    // PutINGate
+    double zero = 0, nan_d = std::nan("1");
+    uint64_t* zerofptr = (uint64_t*) &zero;
+    uint64_t* nanfptr = (uint64_t*) &nan_d;
+    share* s_zero = circ->PutCONSGate(*zerofptr, 64);
+    share* s_nan = circ->PutCONSGate(*nanfptr, 64);
+    
+    share* s_cmp = circ->PutFPGate(s_zero, s_in, CMP);    
     share* s_sqrt = circ->PutFPGate(s_in, SQRT);
+    s_sqrt = circ->PutMUXGate(s_nan, s_sqrt, s_cmp);
 
 	return s_sqrt;
 }
@@ -248,61 +263,81 @@ share* ABYmath::aby_tan(ABYParty* party, BooleanCircuit* circ, share* s_in) {
 }
 
 share* ABYmath::aby_asin(ABYParty* party, BooleanCircuit* circ, share* s_in) {
-    // PutINGate
-    double zero = 0, one = 1.0, two = 2.0, nan_d = std::nan("1");
-    uint64_t* zerofptr = (uint64_t*) &zero;
-    uint64_t* onefptr = (uint64_t*)& one;
-    uint64_t* twofptr = (uint64_t*)& two;
-    uint64_t* nanfptr = (uint64_t*) &nan_d;
+    // judge range
+    // if(input > 1 || input < -1){
+    //     double nanValue = std::numeric_limits<double>::quiet_NaN();
+    //     return nanValue;
+    // }
+
+    // mark for negative number
+    double zero = 0, negone = -1;
+    uint64_t* zerofptr = (uint64_t*)& zero;
+    uint64_t* negonefptr = (uint64_t*)& negone;
     share* s_zero = circ->PutCONSGate(*zerofptr, 64);
-    share* s_one = circ->PutCONSGate(*onefptr, 64);
+    share* s_negone = circ->PutCONSGate(*negonefptr, 64);
+    share* s_cmp_neg = circ->PutFPGate(s_zero, s_in, CMP);
+    share* s_neg_in = circ->PutFPGate(s_in, s_negone, MUL);
+    s_in = circ->PutMUXGate(s_neg_in, s_in, s_cmp_neg);
+
+    // prepare
+    double low = 0.0;
+    double high = M_PI_2f64;
+    double one = 1, two = 2, pi = M_PIf64;
+    int cnt = 0, spec_1 = 0, spec_2 = 0;
+    uint64_t* highfptr = (uint64_t*) &high;
+    uint64_t* lowfptr = (uint64_t*) &low;
+    uint64_t* onefptr = (uint64_t*) &one;
+    uint64_t* twofptr = (uint64_t*) &two;
+    uint64_t* pifptr = (uint64_t*) &pi;
+
+    // PutINGate
     share* s_two = circ->PutCONSGate(*twofptr, 64);
-    share* s_nan = circ->PutCONSGate(*nanfptr, 64);
-    share* s_res = s_in;
-    // share* s_pow = s_in;
-    share* s_deno = s_one;
-    share* s_temp_1 = s_one;
-    share* s_temp_2 = s_two;
-    // share* s_coef = s_one;
-    share* s_i = s_in;
+    share* s_one = circ->PutCONSGate(*onefptr, 64);
+    share* s_high = circ->PutCONSGate(*highfptr, 64);
+    share* s_low = circ->PutCONSGate(*lowfptr, 64);
+    share* s_pi = circ->PutCONSGate(*pifptr, 64);
 
-    // taylor series
-    for(int i = 3; i <= 39; i += 2) {
-        // input
-        s_i = circ->PutFPGate(s_i, s_in, MUL);
-        s_i = circ->PutFPGate(s_i, s_in, MUL);
-        s_i = circ->PutFPGate(s_i, s_temp_1, MUL);
-        s_i = circ->PutFPGate(s_i, s_temp_1, MUL);
-        s_i = circ->PutFPGate(s_i, s_temp_2, DIV);
-        s_deno = circ->PutFPGate(s_deno, s_two, ADD);
-        s_i = circ->PutFPGate(s_i, s_deno, DIV);
+    // in == 0
+    share* s_spec_1 = circ->PutFPGate(s_in, s_zero, CMP);
+    share* s_spec_2 = circ->PutFPGate(s_zero, s_in, CMP);
+    share* s_spec = circ->PutORGate(s_spec_1, s_spec_2);
 
-        s_res = circ->PutFPGate(s_res, s_i, ADD);
-        s_temp_1 = circ->PutFPGate(s_temp_1, s_two, ADD);
-        s_temp_2 = circ->PutFPGate(s_temp_2, s_two, ADD);
-        // // input^i        
-        // s_pow = circ->PutFPGate(s_pow, s_in, MUL);
-        // s_pow = circ->PutFPGate(s_pow, s_in, MUL);
+    share* s_res;
+    share* s_add;
+    share* s_sin;
+    share* s_cmp;
 
-        // // (3, 5, 7, ...)
-        // s_deno = circ->PutFPGate(s_deno, s_two, ADD);
+    // cmp_loop only show 1 or 0 for condition
+    // max iteration is 30 
+    while (cnt <= 20) {
+        // mid = (low + high) / 2
+        s_add = circ->PutFPGate(s_low, s_high, ADD);
+        s_res = circ->PutFPGate(s_add, s_two, DIV);
 
-        // // divide
-        // s_coef = circ->PutFPGate(s_coef, s_temp_1, MUL);
-        // s_coef = circ->PutFPGate(s_coef, s_temp_2, DIV);
-        // share* s_i = circ->PutFPGate(s_pow, s_deno, DIV);
-        // s_i = circ->PutFPGate(s_i, s_coef, MUL);
-        
-        // // temp
+        // s_cmp = sin(mid) > x
+        s_sin = aby_sin_64(party, circ, s_res);
+        s_cmp = circ->PutFPGate(s_sin, s_in, CMP);
 
-        // s_res = circ->PutFPGate(s_res, s_i, ADD);
+        s_high = circ->PutMUXGate(s_res, s_high, s_cmp);
+        s_low = circ->PutMUXGate(s_low, s_res, s_cmp);
+
+        // prevent double point problem
+        // while(mid > high || mid < low){
+        //     mid = (low + high) / 2;
+        //     cmp = -1;
+        // }
+        std::cout << cnt << "\n";
+
+        cnt++;
     }
 
-    share* s_in_abs = aby_abs(party, circ, s_in);
-    share* s_cmp_1 = circ->PutFPGate(s_in_abs, s_one, CMP);
-    s_res = circ->PutMUXGate(s_nan, s_res, s_cmp_1);
 
-	return s_res;
+    // judge for special case
+    share* s_neg_res = circ->PutFPGate(s_res, s_negone, MUL);
+    s_res = circ->PutMUXGate(s_neg_res, s_res, s_cmp_neg);
+    s_res = circ->PutMUXGate(s_res, s_zero, s_spec);
+
+    return s_res;
 }
 
 share* ABYmath::aby_acos(ABYParty* party, BooleanCircuit* circ, share* s_in) {
@@ -321,57 +356,21 @@ share* ABYmath::aby_acos(ABYParty* party, BooleanCircuit* circ, share* s_in) {
 
 share* ABYmath::aby_atan(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     // PutINGate
-    // double one = 1.0;
-    // uint64_t* onefptr = (uint64_t*)& one;
-    // share* s_one = circ->PutCONSGate(*onefptr, 64);
-    // share* s_mul = circ->PutFPGate(s_in, s_in, MUL);
-    // share* s_add = circ->PutFPGate(s_mul, s_one, ADD);
-    // share* s_sqrt = circ->PutFPGate(s_add, SQRT);
-    // share* s_div = circ->PutFPGate(s_in, s_sqrt, DIV);
-    // share* s_asin = aby_asin(party, circ, s_div);
-
-	// return s_asin;
-    double zero = 0, one = 1.0, two = 2.0, nan_d = std::nan("1");
-    uint64_t* zerofptr = (uint64_t*) &zero;
+    double one = 1.0;
     uint64_t* onefptr = (uint64_t*)& one;
-    uint64_t* twofptr = (uint64_t*)& two;
-    uint64_t* nanfptr = (uint64_t*) &nan_d;
-    share* s_zero = circ->PutCONSGate(*zerofptr, 64);
     share* s_one = circ->PutCONSGate(*onefptr, 64);
-    share* s_two = circ->PutCONSGate(*twofptr, 64);
-    share* s_nan = circ->PutCONSGate(*nanfptr, 64);
-    share* s_res = s_in;
-    share* s_pow = s_in;
-    share* s_deno = s_one;
+    share* s_mul = circ->PutFPGate(s_in, s_in, MUL);
+    share* s_add = circ->PutFPGate(s_mul, s_one, ADD);
+    share* s_sqrt = circ->PutFPGate(s_add, SQRT);
+    share* s_div = circ->PutFPGate(s_in, s_sqrt, DIV);
+    share* s_asin = aby_asin(party, circ, s_div);
 
-    // taylor series
-    for(int i = 3; i < 17; i += 2) {
-        // input^i
-        s_pow = circ->PutFPGate(s_pow, s_in, MUL);
-        s_pow = circ->PutFPGate(s_pow, s_in, MUL);
-
-        // (3, 5, 7, ...)
-        s_deno = circ->PutFPGate(s_deno, s_two, ADD);
-
-        // divide
-        share* s_i = circ->PutFPGate(s_pow, s_deno, DIV);
-
-        if((i-1) / 2 % 2 == 0)
-            s_res = circ->PutFPGate(s_res, s_i, ADD);
-        else
-            s_res = circ->PutFPGate(s_res, s_i, SUB);
-    }
-
-    // share* s_in_abs = aby_abs(party, circ, s_in);
-    // share* s_cmp_1 = circ->PutFPGate(s_in_abs, s_one, CMP);
-    // s_res = circ->PutMUXGate(s_nan, s_res, s_cmp_1);
-
-	return s_res;
+	return s_asin;
 }
 
 // share* ABYmath::aby_atan2(ABYParty* party, BooleanCircuit* circ, share* s_in_a, share* s_in_b) {
-//     // float input = a/b;
-//     // float res = 0;
+//     // double input = a/b;
+//     // double res = 0;
 //     share* s_div = circ->PutFPGate(s_in_a, s_in_b, DIV);
 //     share* res;
 

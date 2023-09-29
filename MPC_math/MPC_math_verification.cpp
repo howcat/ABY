@@ -59,8 +59,8 @@ int main(int argc, char** argv) {
     
 	seclvl seclvl = get_sec_lvl(secparam);
 
-    std::ofstream outputFile_1("./verification_fiile/file_1.txt");
-    std::ofstream outputFile_2("./verification_fiile/file_2.txt");
+    std::ofstream outputFile_1("./verification_fiile/correct/tanh_0.txt");
+    std::ofstream outputFile_2("./verification_fiile/aby/tanh_0.txt");
     if (!outputFile_1.is_open() || !outputFile_2.is_open()) {
         std::cerr << "無法開啟檔案。" << std::endl;
         return 1;
@@ -70,48 +70,58 @@ int main(int argc, char** argv) {
     // double upper_bound = 1000000;
     // std::default_random_engine re;
     // std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
-    int upper_bound = 1000, lower_bound = -1000;
+    int upper_bound = 25, lower_bound = -25;
     srand(time(0));
     ABYmath abymath;
     ABYParty* party = new ABYParty(role, address, port, seclvl, bitlen, nthreads, mt_alg, 100000, circuit_dir);
     std::vector<Sharing*>& sharings = party->GetSharings();
     BooleanCircuit* circ = (BooleanCircuit*) sharings[S_BOOL]->GetCircuitBuildRoutine();
-    int times = 10;
+    int times = 500;
 
     for (int k = 0; k < times; k++) {
         std::cout << "(" << k+1 << "/" << times <<")\n";
         int i = rand() % (upper_bound - lower_bound + 1) + lower_bound;
         int t = rand() % (upper_bound - lower_bound + 1) + lower_bound;
-        // double d = (double)i + (double)t / 2000;
-        double d = fmod((double)i + (double)t / 2000, (2*M_PIf64));
-        float d_32 = (float)d/M_PIf32;
+        double d_1 = (double)i + (double)t / (2*upper_bound);
+        // double d_1 = fmod((double)i + (double)t / 2000, (2*M_PIf64));
+        // float d_32 = (float)d/M_PIf32;
+        i = rand() % (upper_bound - lower_bound + 1) + lower_bound;
+        t = rand() % (upper_bound - lower_bound + 1) + lower_bound;
+        double d_2 = (double)i + (double)t / (2*upper_bound);
 
         // correct file
-        double correct = sin(d);
-        outputFile_1 << d << " " << correct << std::endl;
+        outputFile_1 << d_1
+                    //  << "," << d_2
+                    << " ";
+        double correct = tanh(d_1);
+        outputFile_1 << std::fixed << std::setprecision(6) << correct 
+                    //  << "," << d_2 
+                     << std::endl;
 
         // answer file
-        uint64_t* aptr = (uint64_t*)& d;
-        uint32_t* bptr = (uint32_t*)& d_32;
+        uint64_t* aptr = (uint64_t*)& d_1;
+        uint64_t* bptr = (uint64_t*)& d_2;
         share* input_a = circ->PutINGate(aptr, 64, SERVER);
-        share* input_b = circ->PutINGate(bptr, 32, CLIENT);
-        share* ans_64 = abymath.aby_sin_64(party, circ, input_a);
-        share* ans_32 = abymath.aby_sin_32(party, circ, input_b);
-        share* res_32 = circ->PutOUTGate(ans_32, ALL);
-        std::cout << res_32->get_bitlength() << "\n";
+        share* input_b = circ->PutINGate(bptr, 64, CLIENT);
+        share* ans_64 = abymath.aby_tanh(party, circ, input_a);
         share* res_64 = circ->PutOUTGate(ans_64, ALL);
+        share* res_64_2 = circ->PutOUTGate(input_b, ALL);
         party->ExecCircuit();
-        uint32_t* s_ans_32 = (uint32_t*)res_32->get_clear_value_ptr();
-        float answer_32 = *((float*) s_ans_32);
         uint64_t s_ans_64 = res_64->get_clear_value<uint64_t>();
         double answer_64 = *(double*)& s_ans_64;
+        uint64_t s_ans_64_2 = res_64_2->get_clear_value<uint64_t>();
+        double answer_64_2 = *(double*)& s_ans_64_2;
         party->Reset();
-        outputFile_2 << d << " " << answer_64 << std::endl;
+        outputFile_2 << d_1
+                    //  << "," << d_2
+                     << " " << std::fixed << std::setprecision(6) << answer_64
+                    //  << "," << answer_64_2 
+                     << std::endl;
         
-        std::cout << "test data: " << d << "\n"
-                  << "correct  : " << correct << "\n"
-                  << "answer_32: " << answer_32 << "\n"
-                  << "answer_64: " << answer_64 << "\n"; 
+        std::cout << "test data: " << d_1 << "," << d_2 << "\n"
+                  << "correct  : " << correct << "," << d_2 << "\n"
+                //   << "answer_32: " << answer_32 << "\n"
+                  << "answer_64: " << answer_64 << "," << answer_64_2 << "\n"; 
     }
 
     outputFile_1.close();
