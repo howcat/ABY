@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
     ABYmath abymath;
 
     // testing data
-    a = 0.234, b = 5.678;
+    a = 5.1, b = -3;
 
     ABYParty* party = new ABYParty(role, address, port, seclvl, bitlen, nthreads, mt_alg, 100000, circuit_dir);
 	std::vector<Sharing*>& sharings = party->GetSharings();
@@ -75,9 +75,9 @@ int main(int argc, char** argv) {
     share* input_b = circ->PutINGate(bptr, 64, CLIENT);
     
     // ==== testing function ====
-    // std::cout << "CORRECT: " << std::fixed  << std::setprecision(12) << atan(a) << "\n";
-    share* in = abymath.aby_exp(party, circ, input_a);
-    // share* in = abymath.aby_fmod(party, circ, input_a, input_b);
+    std::cout << "CORRECT: " << std::fixed  << std::setprecision(12) << fmod(14, -0.7) << "\n";
+    // share* in = abymath.aby_test(party, circ, input_a);
+    share* in = abymath.aby_fmod(party, circ, input_a, input_b);
     // ==========================
     
     share* res = circ->PutOUTGate(in, ALL);

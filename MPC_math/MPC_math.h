@@ -34,7 +34,7 @@ public:
     share* aby_sqrt(ABYParty* party, BooleanCircuit* circ, share* input);
 
     share* aby_sin_32(ABYParty* party, BooleanCircuit* circ, share* input);
-    share* aby_sin_64(ABYParty* party, BooleanCircuit* circ, share* input);
+    share* aby_sin(ABYParty* party, BooleanCircuit* circ, share* input);
 
     share* aby_cos(ABYParty* party, BooleanCircuit* circ, share* input);
         

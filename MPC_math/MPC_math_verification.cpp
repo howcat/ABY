@@ -59,17 +59,13 @@ int main(int argc, char** argv) {
     
 	seclvl seclvl = get_sec_lvl(secparam);
 
-    std::ofstream outputFile_1("./verification_fiile/correct/tanh_0.txt");
-    std::ofstream outputFile_2("./verification_fiile/aby/tanh_0.txt");
+    std::ofstream outputFile_1("./verification_fiile/correct/modf_0.txt");
+    std::ofstream outputFile_2("./verification_fiile/aby/modf_0.txt");
     if (!outputFile_1.is_open() || !outputFile_2.is_open()) {
         std::cerr << "無法開啟檔案。" << std::endl;
         return 1;
     }
 
-    // double lower_bound = -1000000;
-    // double upper_bound = 1000000;
-    // std::default_random_engine re;
-    // std::uniform_real_distribution<double> unif(lower_bound,upper_bound);
     int upper_bound = 25, lower_bound = -25;
     srand(time(0));
     ABYmath abymath;
@@ -83,8 +79,6 @@ int main(int argc, char** argv) {
         int i = rand() % (upper_bound - lower_bound + 1) + lower_bound;
         int t = rand() % (upper_bound - lower_bound + 1) + lower_bound;
         double d_1 = (double)i + (double)t / (2*upper_bound);
-        // double d_1 = fmod((double)i + (double)t / 2000, (2*M_PIf64));
-        // float d_32 = (float)d/M_PIf32;
         i = rand() % (upper_bound - lower_bound + 1) + lower_bound;
         t = rand() % (upper_bound - lower_bound + 1) + lower_bound;
         double d_2 = (double)i + (double)t / (2*upper_bound);
@@ -93,9 +87,9 @@ int main(int argc, char** argv) {
         outputFile_1 << d_1
                     //  << "," << d_2
                     << " ";
-        double correct = tanh(d_1);
+        double correct = modf(d_1, &d_2);
         outputFile_1 << std::fixed << std::setprecision(6) << correct 
-                    //  << "," << d_2 
+                     << " " << d_2 
                      << std::endl;
 
         // answer file
@@ -103,7 +97,7 @@ int main(int argc, char** argv) {
         uint64_t* bptr = (uint64_t*)& d_2;
         share* input_a = circ->PutINGate(aptr, 64, SERVER);
         share* input_b = circ->PutINGate(bptr, 64, CLIENT);
-        share* ans_64 = abymath.aby_tanh(party, circ, input_a);
+        share* ans_64 = abymath.aby_modf(party, circ, input_a, &input_b);
         share* res_64 = circ->PutOUTGate(ans_64, ALL);
         share* res_64_2 = circ->PutOUTGate(input_b, ALL);
         party->ExecCircuit();
@@ -115,13 +109,15 @@ int main(int argc, char** argv) {
         outputFile_2 << d_1
                     //  << "," << d_2
                      << " " << std::fixed << std::setprecision(6) << answer_64
-                    //  << "," << answer_64_2 
+                     << " " << answer_64_2 
                      << std::endl;
         
-        std::cout << "test data: " << d_1 << "," << d_2 << "\n"
-                  << "correct  : " << correct << "," << d_2 << "\n"
-                //   << "answer_32: " << answer_32 << "\n"
-                  << "answer_64: " << answer_64 << "," << answer_64_2 << "\n"; 
+        if( fabs(correct - answer_64) > 1e-8 ){
+            std::cout << "!!!!\n"
+                      << "test data: " << d_1 << "\n"
+                      << "correct  : " << correct << "\n"
+                      << "answer   : " << answer_64 << "\n\n";
+        }
     }
 
     outputFile_1.close();

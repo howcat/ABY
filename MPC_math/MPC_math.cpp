@@ -1,5 +1,32 @@
 #include "MPC_math.h"
 
+share* ABYmath::aby_test(ABYParty* party, BooleanCircuit* circ, share* s_in, share* b){
+    double e = 1.2345678, f = 1.2345678;
+    uint64_t* efptr = (uint64_t*)& e;
+    uint64_t* ffptr = (uint64_t*)& f;
+    share* s_e = circ->PutCONSGate(*efptr, 64);
+    share* s_f = circ->PutCONSGate(*ffptr, 64);
+    double zero = 0;
+    uint64_t* zerofptr = (uint64_t*) &zero;
+    share* s_zero = circ->PutCONSGate(*zerofptr, 64);
+    share* s_sub = circ->PutFPGate(s_e, s_f, SUB);
+
+    for(int i = 0; i < 64; i++){
+        std::cout << i << ": " << s_zero->get_wire_id(i) << ", ";
+        // s_zero->set_wire_id(i, s_e->get_wire_id(i));
+        // std::cout << s_sub->get_wire_id(i) << ", ";
+        std::cout << s_sub->get_wire_id(i) << "\n";
+    }
+    // share* s_log2 = circ->PutFPGate(s_e, LOG2);
+    // s_log2->set_bitlength(64);
+    // share* s_mul = circ->PutFPGate(s_in, s_log2, MUL);
+    // share* s_exp2 = circ->PutFPGate(s_mul, EXP2);
+    // s_exp2->set_bitlength(64);
+
+	return s_sub;
+    
+}
+
 share* ABYmath::aby_pow(ABYParty* party, BooleanCircuit* circ, share* s_base, share* s_exp){
     // 2^3 = e^(3ln(2))
     share* s_log2 = circ->PutFPGate(s_base, LOG2);
@@ -34,7 +61,6 @@ share* ABYmath::aby_ceil(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     share* s_zero = circ->PutCONSGate(*zerofptr, 64);
     share* s_one = circ->PutCONSGate(*onefptr, 64);
 
-    if(s_in == s_zero) return s_zero;
     share* s_cmp_1 = circ->PutFPGate(s_zero, s_in, CMP);
     share* s_x = circ->PutFPGate(s_in, s_toi, SUB);
     s_x = circ->PutFPGate(s_x, s_toi, ADD);
@@ -63,7 +89,6 @@ share* ABYmath::aby_floor(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     share* s_zero = circ->PutCONSGate(*zerofptr, 64);
     share* s_one = circ->PutCONSGate(*onefptr, 64);
 
-    if(s_in == s_zero) return s_zero;
     share* s_cmp_1 = circ->PutFPGate(s_zero, s_in, CMP);
     share* s_x = circ->PutFPGate(s_in, s_toi, SUB);
     s_x = circ->PutFPGate(s_x, s_toi, ADD);
@@ -138,7 +163,7 @@ share* ABYmath::aby_sin_32(ABYParty* party, BooleanCircuit* circ, share* s_in) {
 	return s_sin;
 }
 
-share* ABYmath::aby_sin_64(ABYParty* party, BooleanCircuit* circ, share* s_in) {
+share* ABYmath::aby_sin(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     // PutINGate
     double one = 1.0, round = 2 * M_PIf64;
     uint64_t* onefptr = (uint64_t*)& one;
@@ -146,17 +171,16 @@ share* ABYmath::aby_sin_64(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     share* s_one = circ->PutCONSGate(*onefptr, 64);
     share* s_r = circ->PutCONSGate(*roundfptr, 64);
     share* s_fmod = aby_fmod(party, circ, s_in, s_r);
-    s_in = s_fmod;
-    share* s_tyl = s_in;
-    share* s_pow = s_in;
+    share* s_tyl = s_fmod;
+    share* s_pow = s_fmod;
     share* s_fac = s_one;
     share* s_temp = s_one;
 
     // taylor series
-    for(int i = 3; i < 17; i += 2) {
+    for(int i = 3; i <= 35; i += 2) {
         // input^i
-        s_pow = circ->PutFPGate(s_pow, s_in, MUL);
-        s_pow = circ->PutFPGate(s_pow, s_in, MUL);
+        s_pow = circ->PutFPGate(s_pow, s_fmod, MUL);
+        s_pow = circ->PutFPGate(s_pow, s_fmod, MUL);
 
         // i!
         s_temp = circ->PutFPGate(s_temp, s_one, ADD);
@@ -180,21 +204,24 @@ share* ABYmath::aby_sin_64(ABYParty* party, BooleanCircuit* circ, share* s_in) {
 
 share* ABYmath::aby_cos(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     // PutINGate
-    double zero = 0, one = 1.0;
+    double zero = 0, one = 1.0, round = 2 * M_PIf64;
     uint64_t* zerofptr = (uint64_t*)& zero;
     uint64_t* onefptr = (uint64_t*)& one;
+    uint64_t* roundfptr = (uint64_t*)& round;
     share* s_zero = circ->PutCONSGate(*zerofptr, 64);
     share* s_one = circ->PutCONSGate(*onefptr, 64);
+    share* s_r = circ->PutCONSGate(*roundfptr, 64);
+    share* s_fmod = aby_fmod(party, circ, s_in, s_r);
     share* s_tyl = s_one;
     share* s_pow = s_one;
     share* s_fac = s_one;
     share* s_temp = s_zero;
 
     // taylor series
-    for(int i = 2; i < 16; i += 2) {
+    for(int i = 2; i <= 34; i += 2) {
         // input ^ i
-        s_pow = circ->PutFPGate(s_pow, s_in, MUL);
-        s_pow = circ->PutFPGate(s_pow, s_in, MUL);
+        s_pow = circ->PutFPGate(s_pow, s_fmod, MUL);
+        s_pow = circ->PutFPGate(s_pow, s_fmod, MUL);
 
         // i!
         s_temp = circ->PutFPGate(s_temp, s_one, ADD);
@@ -218,48 +245,15 @@ share* ABYmath::aby_cos(ABYParty* party, BooleanCircuit* circ, share* s_in) {
 
 share* ABYmath::aby_tan(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     // PutINGate
-    double zero = 0, one = 1.0;
-    uint64_t* zerofptr = (uint64_t*)& zero;
-    uint64_t* onefptr = (uint64_t*)& one;
-    share* s_zero = circ->PutCONSGate(*zerofptr, 64);
-    share* s_one = circ->PutCONSGate(*onefptr, 64);
-    share* s_sin = s_in;
-    share* s_cos = s_one;
-    share* s_pow = s_in;
-    share* s_fac = s_one;
-    share* s_temp = s_one;
+    double round = 2 * M_PIf64;
+    uint64_t* roundfptr = (uint64_t*)& round;
+    share* s_r = circ->PutCONSGate(*roundfptr, 64);
+    share* s_fmod = aby_fmod(party, circ, s_in, s_r);    
+    share* s_sin = aby_sin(party, circ, s_fmod);
+    share* s_cos = aby_cos(party, circ, s_fmod); 
+    share* s_div = circ->PutFPGate(s_sin, s_cos, DIV);
 
-    // taylor series
-    for(int i = 2; i < 18; i++) {
-        // input ^ i
-        s_pow = circ->PutFPGate(s_pow, s_in, MUL);
-
-        // i!
-        s_temp = circ->PutFPGate(s_temp, s_one, ADD);
-        s_fac = circ->PutFPGate(s_fac, s_temp, MUL);
-
-        // pow / fac
-        share* s_i = circ->PutFPGate(s_pow, s_fac, DIV);
-        
-        // -1
-        if(i % 2 == 0){
-            if(i / 2 % 2 == 0) {
-                s_cos = circ->PutFPGate(s_cos, s_i, ADD);
-            }else{
-                s_cos = circ->PutFPGate(s_cos, s_i, SUB);
-            }
-        }else{
-            if(i / 2 % 2 == 0) {
-                s_sin = circ->PutFPGate(s_sin, s_i, ADD);
-            }else{
-                s_sin = circ->PutFPGate(s_sin, s_i, SUB);
-            }
-        }
-    }
-
-    share* s_tyl = circ->PutFPGate(s_sin, s_cos, DIV);
-
-	return s_tyl;
+    return s_div;
 }
 
 share* ABYmath::aby_asin(ABYParty* party, BooleanCircuit* circ, share* s_in) {
@@ -297,6 +291,53 @@ share* ABYmath::aby_asin(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     share* s_low = circ->PutCONSGate(*lowfptr, 64);
     share* s_pi = circ->PutCONSGate(*pifptr, 64);
 
+    // sin number
+    double sin_1_4 = sin(M_PI_2 / 2);
+    uint64_t* fptr_1_4 = (uint64_t*) &sin_1_4;
+    share* s_sin_1_4 = circ->PutCONSGate(*fptr_1_4, 64);
+    double sin_1_8 = sin(M_PI_2 / 4);
+    uint64_t* fptr_1_8 = (uint64_t*) &sin_1_8;
+    share* s_sin_1_8 = circ->PutCONSGate(*fptr_1_8, 64);
+    double sin_3_8 = sin(3 * M_PI_2 / 4);
+    uint64_t* fptr_3_8 = (uint64_t*) &sin_3_8;
+    share* s_sin_3_8 = circ->PutCONSGate(*fptr_3_8, 64);
+    double sin_1_16 = sin(1 * M_PI_2 / 8);
+    uint64_t* fptr_1_16 = (uint64_t*) &sin_1_16;
+    share* s_sin_1_16 = circ->PutCONSGate(*fptr_1_16, 64);
+    double sin_3_16 = sin(3 * M_PI_2 / 8);
+    uint64_t* fptr_3_16 = (uint64_t*) &sin_3_16;
+    share* s_sin_3_16 = circ->PutCONSGate(*fptr_3_16, 64);
+    double sin_5_16 = sin(5 * M_PI_2 / 8);
+    uint64_t* fptr_5_16 = (uint64_t*) &sin_5_16;
+    share* s_sin_5_16 = circ->PutCONSGate(*fptr_5_16, 64);
+    double sin_7_16 = sin(7 * M_PI_2 / 8);
+    uint64_t* fptr_7_16 = (uint64_t*) &sin_7_16;
+    share* s_sin_7_16 = circ->PutCONSGate(*fptr_7_16, 64);
+    
+    // compare
+    share* s_cmp_1_4 = circ->PutFPGate(s_in, s_sin_1_4, CMP);
+    share* s_cmp_1_8 = circ->PutFPGate(s_in, s_sin_1_8, CMP);
+    share* s_cmp_3_8 = circ->PutFPGate(s_in, s_sin_3_8, CMP);
+    share* s_cmp_1_16 = circ->PutFPGate(s_in, s_sin_1_16, CMP);
+    share* s_cmp_3_16 = circ->PutFPGate(s_in, s_sin_3_16, CMP);
+    share* s_cmp_5_16 = circ->PutFPGate(s_in, s_sin_5_16, CMP);
+    share* s_cmp_7_16 = circ->PutFPGate(s_in, s_sin_7_16, CMP);
+
+    s_low = circ->PutMUXGate(s_sin_1_4, s_low, s_cmp_1_4);
+    s_high = circ->PutMUXGate(s_high, s_sin_1_4, s_cmp_1_4);
+    s_low = circ->PutMUXGate(s_sin_1_8, s_low, s_cmp_1_8);
+    s_high = circ->PutMUXGate(s_high, s_sin_1_8, s_cmp_1_8);
+    s_low = circ->PutMUXGate(s_sin_3_8, s_low, s_cmp_3_8);
+    s_high = circ->PutMUXGate(s_high, s_sin_3_8, s_cmp_3_8);
+    s_low = circ->PutMUXGate(s_sin_1_16, s_low, s_cmp_1_16);
+    s_high = circ->PutMUXGate(s_high, s_sin_1_16, s_cmp_1_16);
+    s_low = circ->PutMUXGate(s_sin_3_16, s_low, s_cmp_3_16);
+    s_high = circ->PutMUXGate(s_high, s_sin_3_16, s_cmp_3_16);
+    s_low = circ->PutMUXGate(s_sin_5_16, s_low, s_cmp_5_16);
+    s_high = circ->PutMUXGate(s_high, s_sin_5_16, s_cmp_5_16);
+    s_low = circ->PutMUXGate(s_sin_7_16, s_low, s_cmp_7_16);
+    s_high = circ->PutMUXGate(s_high, s_sin_7_16, s_cmp_7_16);
+
     // in == 0
     share* s_spec_1 = circ->PutFPGate(s_in, s_zero, CMP);
     share* s_spec_2 = circ->PutFPGate(s_zero, s_in, CMP);
@@ -308,14 +349,14 @@ share* ABYmath::aby_asin(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     share* s_cmp;
 
     // cmp_loop only show 1 or 0 for condition
-    // max iteration is 30 
-    while (cnt <= 20) {
+    // max iteration is 15
+    while (cnt <= 10) {
         // mid = (low + high) / 2
         s_add = circ->PutFPGate(s_low, s_high, ADD);
         s_res = circ->PutFPGate(s_add, s_two, DIV);
 
         // s_cmp = sin(mid) > x
-        s_sin = aby_sin_64(party, circ, s_res);
+        s_sin = aby_sin(party, circ, s_res);
         s_cmp = circ->PutFPGate(s_sin, s_in, CMP);
 
         s_high = circ->PutMUXGate(s_res, s_high, s_cmp);
@@ -405,13 +446,13 @@ share* ABYmath::aby_sinh(ABYParty* party, BooleanCircuit* circ, share* s_in) {
     double zero = 0.0, two = 2.0;
     uint64_t* zerofptr = (uint64_t*)& zero;
     uint64_t* twofptr = (uint64_t*)& two;
+    share* s_zero = circ->PutCONSGate(*zerofptr, 64);
+    share* s_two = circ->PutCONSGate(*twofptr, 64);
     
     share* s_exp = aby_exp(party, circ, s_in);
-    share* s_zero = circ->PutCONSGate(*zerofptr, 64);
     share* s_in_neg = circ->PutFPGate(s_zero, s_in, SUB);
     share* s_exp_neg = aby_exp(party, circ, s_in_neg);
     share* s_sub = circ->PutFPGate(s_exp, s_exp_neg, SUB);
-    share* s_two = circ->PutCONSGate(*twofptr, 64);
     share* s_div = circ->PutFPGate(s_sub, s_two, DIV);
 
 	return s_div;
@@ -470,17 +511,20 @@ share* ABYmath::aby_cabs(ABYParty* party, BooleanCircuit* circ, share* s_ain, sh
 
 share* ABYmath::aby_fmod(ABYParty* party, BooleanCircuit* circ, share* s_in_a, share* s_in_b) {
     // PutINGate
-    double zero = 0, one = 1;
+    double zero = 0, one = 1, nan_d = std::nan("1");
     uint64_t* zerofptr = (uint64_t*) &zero, *onefptr = (uint64_t*) &one;
+    uint64_t* nanfptr = (uint64_t*) &nan_d;
     share* s_zero = circ->PutCONSGate(*zerofptr, 64);
     share* s_one = circ->PutCONSGate(*onefptr, 64);
-    
-    // judge for special case
-    if(s_in_b == s_zero) return s_zero;
+    share* s_nan = circ->PutCONSGate(*nanfptr, 64);
 
     share* s_cmp_a = circ->PutFPGate(s_zero, s_in_a, CMP);
     share* s_cmp_b = circ->PutFPGate(s_zero, s_in_b, CMP);
     share* s_cmp = circ->PutXORGate(s_cmp_a, s_cmp_b);
+
+    share* s_cmp_b_ = circ->PutFPGate(s_in_b, s_zero, CMP);
+    share* s_cmp_1 = circ->PutORGate(s_cmp_b, s_cmp_b_);
+
     share* s_div = circ->PutFPGate(s_in_a, s_in_b, DIV);
     share* s_ceil = aby_ceil(party, circ, s_div);
     share* s_floor = aby_floor(party, circ, s_div);
@@ -488,6 +532,7 @@ share* ABYmath::aby_fmod(ABYParty* party, BooleanCircuit* circ, share* s_in_a, s
 
     share* s_mul = circ->PutFPGate(s_mux, s_in_b, MUL);
     share* s_sub = circ->PutFPGate(s_in_a, s_mul, SUB);
+    s_sub = circ->PutMUXGate(s_sub, s_nan, s_cmp_1);
 
 	return s_sub;
 }
