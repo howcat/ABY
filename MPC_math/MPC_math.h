@@ -29,7 +29,7 @@ public:
     
     share* aby_abs(ABYParty* party, BooleanCircuit* circ, share* input);
 
-    share* aby_exp(ABYParty* party, BooleanCircuit* circ, share* input);
+    share* aby_exp(ABYParty* party, BooleanCircuit* circ, share* input, uint32_t btilength);
 
     share* aby_sqrt(ABYParty* party, BooleanCircuit* circ, share* input);
 
