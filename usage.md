@@ -10,4 +10,5 @@ add_executable(yourexe yourprogramfile.cpp MPC_math.cpp)
 target_link_libraries(yourexe ABY::aby ENCRYPTO_utils::encrypto_utils)
 ~~~
 
-詳請可以參考ABY Library中的CMakeLists.txt，或是有其他可以一起編譯的方法都可以。
+對[這邊](https://github.com/encryptogroup/ABY/tree/public/src/examples
+)下面的CMakeLists.txt和各資料夾下的CMakeLists.txt去參考和改動就可以了，或是有其他可以一起編譯的方法都可以。
