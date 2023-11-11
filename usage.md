@@ -12,3 +12,11 @@ target_link_libraries(yourexe ABY::aby ENCRYPTO_utils::encrypto_utils)
 
 對ABY Library的[example](https://github.com/encryptogroup/ABY/tree/public/src/examples
 )下面的CMakeLists.txt和各資料夾下的CMakeLists.txt去參考和改動就可以了，或是有其他可以一起編譯的方法都可以。
+
+## function使用範例
+1. 引入函式庫
+`#include "MPC_math.h"`
+2. 宣告變數`ABYmath yourVarName`
+3. 使用時像這樣`share* in = abymath.aby_fmod(party, circ, input_a, input_b);`
+
+具體範例可以參考[這裡](https://github.com/howcat/ABY/blob/main/MPC_math/MPC_math_test.cpp)
