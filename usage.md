@@ -1,5 +1,6 @@
 # MPC_math.h Usage
 
+## 前置作業
 1. 將"MPC_math"資料夾底下的"MPC_math.h"和"MPC_math.cpp"下載下來
 2. 使用"include <MPC_math.h>"
 3. 編譯時將下載下來的檔案一起編譯即可
